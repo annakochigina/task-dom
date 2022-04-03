@@ -1,3 +1,5 @@
+import { strictEqual } from 'assert';
+
 /*
   В функцию appendToBody передаются 3 параметра:
   tag - имя тега, content - содержимое тега и count - количество вставок.
@@ -5,6 +7,11 @@
   Считаем, что всегда передается тег, допускающий вставку текста в качестве своего содержимого (P, DIV, I и пр.).
 */
 export function appendToBody(tag, content, count) {
+    for (let i = 0; i < count; i++) {
+        const elm = document.createElement(tag);
+        elm.innerHTML = content;
+        document.body.append(elm);
+    }
 }
 
 /*
@@ -15,6 +22,18 @@ export function appendToBody(tag, content, count) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function generateTree(childrenCount, level) {
+    const addChild = (childrenCount, deep) => {
+        let tmp_div = document.createElement('div');
+        tmp_div.className = `item_${deep}`;
+        if (deep < level) {
+            for (let i = 0; i < childrenCount; i++) {
+                tmp_div.appendChild(addChild(childrenCount, deep + 1));
+            }
+        }
+        return tmp_div;
+    };
+
+    return addChild(childrenCount, 1);
 }
 
 /*
@@ -26,4 +45,22 @@ export function generateTree(childrenCount, level) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function replaceNodes() {
+    const needed_class_name = 'item_2';
+
+    const tree = generateTree(2, 3);
+    let elements_by_class_name = tree.getElementsByClassName(needed_class_name);
+
+    Array.from(elements_by_class_name).forEach((elm_by_class_name) => {
+        const childNodes = elm_by_class_name.childNodes;
+        const tmp_section = document.createElement('section');
+        tmp_section.className = needed_class_name;
+
+        Array.from(childNodes).forEach((child_node) => {
+            tmp_section.appendChild(child_node);
+        });
+
+        elm_by_class_name.replaceWith(tmp_section);
+    });
+
+    return tree;
 }
